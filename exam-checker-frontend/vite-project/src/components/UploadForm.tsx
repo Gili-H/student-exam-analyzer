@@ -8,13 +8,13 @@ import {
     FormGroup,
     FormControl,
     FormLabel,
-    // TextField is not used in the final form, so it can be removed if not needed elsewhere
 } from '@mui/material';
-import CloudUploadIcon from '@mui/icons-material/CloudUpload'; // Fixed: Ensure @mui/icons-material is installed
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import rtlPlugin from 'stylis-plugin-rtl';
 import { CacheProvider } from '@emotion/react';
 import createCache from '@emotion/cache';
+import axios from 'axios'; 
 
 // Create RTL cache
 const cacheRtl = createCache({
@@ -23,10 +23,8 @@ const cacheRtl = createCache({
 });
 
 // Create RTL theme
-// Removed 'Direction' import as it's an internal type and not directly importable.
-// 'rtl' as const is used for strict type assertion, or simply 'rtl' works too.
 const theme = createTheme({
-    direction: 'rtl', // Fixed: Directly use 'rtl' as a string literal
+    direction: 'rtl',
     typography: {
         fontFamily: [
             'Roboto',
@@ -55,7 +53,7 @@ const theme = createTheme({
             styleOverrides: {
                 root: {
                     marginLeft: '0',
-                    marginRight: '8px', // Adjust margin for RTL checkboxes
+                    marginRight: '8px',
                 },
             },
         },
@@ -65,10 +63,16 @@ const theme = createTheme({
 const UploadForm: React.FC = () => {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [selectedCriteria, setSelectedCriteria] = useState<string[]>([]);
+    const [uploadStatus, setUploadStatus] = useState<string>(''); // <--- סטייט חדש לסטטוס העלאה
+    const [isLoading, setIsLoading] = useState<boolean>(false); // <--- סטייט חדש למצב טעינה
+
+    // הגדר את ה-URL של נקודת הקצה בשרת שלך
+    const UPLOAD_URL = 'http://localhost:5000/upload'; 
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files && event.target.files.length > 0) {
             setSelectedFile(event.target.files[0]);
+            setUploadStatus(''); // איפוס סטטוס בהחלפת קובץ
         } else {
             setSelectedFile(null);
         }
@@ -83,16 +87,54 @@ const UploadForm: React.FC = () => {
         }
     };
 
-    const handleSubmit = (event: React.FormEvent) => {
+    const handleSubmit = async (event: React.FormEvent) => { // <--- הפונקציה הפכה ל-async
         event.preventDefault();
-        if (selectedFile) {
-            console.log('Selected File:', selectedFile.name);
-        } else {
-            console.log('No file selected');
+
+        if (!selectedFile) {
+            setUploadStatus('לא נבחר קובץ. אנא בחר/י קובץ.');
+            return;
         }
-        console.log('Selected Criteria:', selectedCriteria);
-        // Here you would typically send the file and criteria to your backend
-        alert('Form submitted! Check console for details.');
+
+        setIsLoading(true); // התחל מצב טעינה
+        setUploadStatus('מעלה קובץ...');
+
+        // יצירת אובייקט FormData
+        const formData = new FormData();
+        formData.append('file', selectedFile); // 'file' - שם השדה שהשרת יצפה לו
+        formData.append('criteria', JSON.stringify(selectedCriteria)); // שליחת קריטריונים כמחרוזת JSON
+
+        try {
+            // שליחת הבקשה באמצעות Axios
+            const response = await axios.post(UPLOAD_URL, formData, {
+                headers: {
+                    // Axios מגדיר אוטומטית את Content-Type ל-multipart/form-data
+                    // אין צורך להגדיר כאן: 'Content-Type': 'multipart/form-data',
+                },
+                onUploadProgress: (progressEvent) => {
+                    if (progressEvent.total) {
+                        const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                        setUploadStatus(`מעלה קובץ: ${percentCompleted}%`);
+                    }
+                },
+            });
+
+            // טיפול בתשובה מהשרת
+            console.log('Server Response:', response.data);
+            setUploadStatus(`העלאה בוצעה בהצלחה! תגובת שרת: ${response.data.message || JSON.stringify(response.data)}`);
+            setSelectedFile(null); // איפוס בחירת הקובץ
+            setSelectedCriteria([]); // איפוס בחירת קריטריונים
+        } catch (error) {
+            // טיפול בשגיאות
+            if (axios.isAxiosError(error)) {
+                setUploadStatus(`שגיאת העלאה: ${error.response?.data?.message || error.message}`);
+                console.error('Upload error:', error.response?.data || error);
+            } else {
+                setUploadStatus(`אירעה שגיאה בלתי צפויה: ${error}`);
+                console.error('Unexpected error:', error);
+            }
+        } finally {
+            setIsLoading(false); // סיים מצב טעינה
+        }
     };
 
     return (
@@ -109,8 +151,8 @@ const UploadForm: React.FC = () => {
                         p: 4,
                         border: '1px solid #ccc',
                         borderRadius: '8px',
-                        maxWidth: '500px', // This width is crucial for 'margin: auto' to work
-                        margin: '40px auto', // This centers it horizontally
+                        maxWidth: '500px',
+                        margin: '40px auto',
                         boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
                         backgroundColor: '#fff',
                     }}
@@ -129,13 +171,13 @@ const UploadForm: React.FC = () => {
                             component="label"
                             startIcon={<CloudUploadIcon />}
                             sx={{ width: 'fit-content' }}
+                            disabled={isLoading} // <--- השבתה בזמן טעינה
                         >
                             בחר קובץ
                             <input
                                 type="file"
                                 hidden
                                 onChange={handleFileChange}
-                                // Limiting to PDF and DOCX for common test files, adjust as needed
                                 accept=".pdf,.doc,.docx,.txt"
                             />
                         </Button>
@@ -144,8 +186,9 @@ const UploadForm: React.FC = () => {
                                 קובץ נבחר: {selectedFile.name}
                             </Typography>
                         )}
-                        {!selectedFile && (
-                            <Typography variant="body2" sx={{ mt: 1, color: 'error.main' }}>
+                        {/* שינוי הודעת השגיאה לפי הסטטוס החדש */}
+                        {!selectedFile && !uploadStatus.includes('מעלה') && (
+                             <Typography variant="body2" sx={{ mt: 1, color: 'error.main' }}>
                                 לא נבחר קובץ. אנא בחר קובץ.
                             </Typography>
                         )}
@@ -161,6 +204,7 @@ const UploadForm: React.FC = () => {
                                         checked={selectedCriteria.includes('criteria1')}
                                         onChange={handleCriteriaChange}
                                         value="criteria1"
+                                        disabled={isLoading} // <--- השבתה בזמן טעינה
                                     />
                                 }
                                 label="קריטריון 1"
@@ -171,6 +215,7 @@ const UploadForm: React.FC = () => {
                                         checked={selectedCriteria.includes('criteria2')}
                                         onChange={handleCriteriaChange}
                                         value="criteria2"
+                                        disabled={isLoading} // <--- השבתה בזמן טעינה
                                     />
                                 }
                                 label="קריטריון 2"
@@ -181,6 +226,7 @@ const UploadForm: React.FC = () => {
                                         checked={selectedCriteria.includes('criteria3')}
                                         onChange={handleCriteriaChange}
                                         value="criteria3"
+                                        disabled={isLoading} // <--- השבתה בזמן טעינה
                                     />
                                 }
                                 label="קריטריון 3"
@@ -194,11 +240,18 @@ const UploadForm: React.FC = () => {
                         variant="contained"
                         color="primary"
                         size="large"
-                        disabled={!selectedFile} // Disable button if no file is selected
+                        disabled={!selectedFile || isLoading} // <--- השבתה אם אין קובץ או בזמן טעינה
                         sx={{ alignSelf: 'center', mt: 3 }}
                     >
-                        שלח
+                        {isLoading ? 'שולח...' : 'שלח'} {/* <--- שינוי טקסט הכפתור בזמן טעינה */}
                     </Button>
+
+                    {/* <--- הצגת סטטוס ההעלאה כאן */}
+                    {uploadStatus && (
+                        <Typography variant="body2" sx={{ mt: 2, textAlign: 'center', color: uploadStatus.includes('הצלחה') ? 'success.main' : 'error.main' }}>
+                            {uploadStatus}
+                        </Typography>
+                    )}
                 </Box>
             </ThemeProvider>
         </CacheProvider>
