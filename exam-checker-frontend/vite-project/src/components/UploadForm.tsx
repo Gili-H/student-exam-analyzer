@@ -14,7 +14,7 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import rtlPlugin from 'stylis-plugin-rtl';
 import { CacheProvider } from '@emotion/react';
 import createCache from '@emotion/cache';
-import axios from 'axios'; 
+import axios from 'axios';
 
 // Create RTL cache
 const cacheRtl = createCache({
@@ -63,11 +63,12 @@ const theme = createTheme({
 const UploadForm: React.FC = () => {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [selectedCriteria, setSelectedCriteria] = useState<string[]>([]);
-    const [uploadStatus, setUploadStatus] = useState<string>(''); // <--- סטייט חדש לסטטוס העלאה
-    const [isLoading, setIsLoading] = useState<boolean>(false); // <--- סטייט חדש למצב טעינה
+    const [uploadStatus, setUploadStatus] = useState<string>('');
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [questions, setQuestions] = useState<string[]>([]);
 
-    // הגדר את ה-URL של נקודת הקצה בשרת שלך
-    const UPLOAD_URL = 'http://localhost:5000/upload'; 
+    const UPLOAD_URL = 'http://localhost:5000/api/extract-questions';
+
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files && event.target.files.length > 0) {
@@ -121,6 +122,9 @@ const UploadForm: React.FC = () => {
             // טיפול בתשובה מהשרת
             console.log('Server Response:', response.data);
             setUploadStatus(`העלאה בוצעה בהצלחה! תגובת שרת: ${response.data.message || JSON.stringify(response.data)}`);
+            setQuestions(response.data.questions || []);
+            setUploadStatus('העלאה בוצעה בהצלחה!');
+
             setSelectedFile(null); // איפוס בחירת הקובץ
             setSelectedCriteria([]); // איפוס בחירת קריטריונים
         } catch (error) {
@@ -188,7 +192,7 @@ const UploadForm: React.FC = () => {
                         )}
                         {/* שינוי הודעת השגיאה לפי הסטטוס החדש */}
                         {!selectedFile && !uploadStatus.includes('מעלה') && (
-                             <Typography variant="body2" sx={{ mt: 1, color: 'error.main' }}>
+                            <Typography variant="body2" sx={{ mt: 1, color: 'error.main' }}>
                                 לא נבחר קובץ. אנא בחר קובץ.
                             </Typography>
                         )}
@@ -253,6 +257,19 @@ const UploadForm: React.FC = () => {
                         </Typography>
                     )}
                 </Box>
+                {questions.length > 0 && (
+                    <Box sx={{ mt: 4 }}>
+                        <Typography variant="h6" align="center">
+                            השאלות שחולצו:
+                        </Typography>
+                        <ul>
+                            {questions.map((q, idx) => (
+                                <li key={idx}>{q}</li>
+                            ))}
+                        </ul>
+                    </Box>
+                )}
+
             </ThemeProvider>
         </CacheProvider>
     );
