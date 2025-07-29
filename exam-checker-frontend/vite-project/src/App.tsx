@@ -1,16 +1,50 @@
-// src/App.tsx
-import React from 'react';
 import TestTypesPage from './pages/TestTypesPage';
-import { Container, Typography } from '@mui/material';
+import { Container, Typography, CssBaseline, Box } from '@mui/material';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+import { CacheProvider } from '@emotion/react';
+import createCache from '@emotion/cache';
+import rtlPlugin from 'stylis-plugin-rtl';
+import { prefixer } from 'stylis';
+
+// יצירת cache שתומך ב־RTL
+const cacheRtl = createCache({
+  key: 'muirtl',
+  stylisPlugins: [prefixer, rtlPlugin],
+});
+
+// ערכת עיצוב עם כיוון RTL
+const theme = createTheme({
+  direction: 'rtl',
+  typography: {
+    fontFamily: 'Arial, sans-serif',
+  },
+});
 
 function App() {
   return (
-    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-      <Typography variant="h3" component="h1" gutterBottom align="center">
-        ניהול מבחנים
-      </Typography>
-      <TestTypesPage />
-    </Container>
+    <CacheProvider value={cacheRtl}>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <Box
+          sx={{
+            height: '100vh',
+            width: '100%',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            bgcolor: '#f0f0f0',
+            textAlign: 'center',
+          }}
+        >
+          <Container maxWidth="sm">
+            <Typography variant="h3" gutterBottom>
+              ניהול מבחנים
+            </Typography>
+            <TestTypesPage />
+          </Container>
+        </Box>
+      </ThemeProvider>
+    </CacheProvider>
   );
 }
 

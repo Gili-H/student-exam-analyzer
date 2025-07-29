@@ -1,6 +1,6 @@
 // src/components/AddTestModal.tsx
 import React, { useState } from 'react'; 
-import type { ChangeEvent, MouseEvent } from 'react';
+import type { ChangeEvent } from 'react';
 import {
   Modal,
   Box,
@@ -156,8 +156,8 @@ const handleCreateTest = (event: React.FormEvent<HTMLFormElement>) => {    event
   };
 
   return (
-    <Modal open={open} onClose={handleClose} aria-labelledby="add-test-modal-title">
-      <Box sx={style} component="form" onSubmit={handleCreateTest}> {/* הוספת component="form" ו-onSubmit */}
+    <Modal open={open} onClose={handleClose} aria-labelledby="add-test-modal-title" dir="rtl">
+      <Box sx={style} component="form" onSubmit={handleCreateTest} dir="rtl"> {/* הוספת component="form" ו-onSubmit */}
         <Typography id="add-test-modal-title" variant="h5" component="h2" sx={{ mb: 3 }}>
           הוסף מבחן חדש
         </Typography>
@@ -332,7 +332,7 @@ const handleCreateTest = (event: React.FormEvent<HTMLFormElement>) => {    event
         {/* Create Test Button */}
         <Button
           variant="contained"
-          sx={{ mt: 4, float: 'left' }}
+          sx={{ mt: 4, float: 'right' }}
           type="submit" // הגדרת הכפתור כ-submit
           disabled={validateSum && sumError}
         >
