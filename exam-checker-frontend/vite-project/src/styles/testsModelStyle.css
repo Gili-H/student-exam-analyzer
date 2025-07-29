@@ -1,0 +1,78 @@
+/* סגנון כללי */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Assistant', sans-serif;
+  background-color: #f7f9fc;
+  direction: rtl;
+}
+
+/* כותרת ראשית */
+h4, h5, h6 {
+  color: #333;
+  font-weight: 600;
+}
+
+/* טופס */
+.MuiDialogContent-root {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-top: 8px !important;
+}
+
+/* טול־טיפ */
+.MuiFormHelperText-root {
+  white-space: pre-line;
+  font-size: 0.85rem;
+  color: #555;
+}
+
+/* אקורדיון */
+.MuiAccordion-root {
+  background-color: #fff;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+.MuiAccordionSummary-root {
+  background-color: #eef2f7;
+  border-radius: 8px 8px 0 0;
+}
+
+.MuiAccordionDetails-root {
+  background-color: #fafbfd;
+  padding: 16px;
+}
+
+/* קבוצה של Checkboxes */
+.MuiFormGroup-root {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* כפתור הוספה */
+button.MuiButton-contained {
+  background-color: #1976d2;
+  color: white;
+  font-weight: bold;
+  padding: 8px 16px;
+  border-radius: 8px;
+  transition: 0.3s;
+}
+
+button.MuiButton-contained:hover {
+  background-color: #125ea3;
+}
+
+/* תצוגת תקציר הפרמטרים שנבחרו */
+.selected-criteria-summary {
+  font-size: 0.9rem;
+  color: #555;
+  background-color: #e9f3ff;
+  padding: 8px;
+  border-radius: 6px;
+  margin-top: 12px;
+}
