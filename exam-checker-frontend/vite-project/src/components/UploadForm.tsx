@@ -67,7 +67,7 @@ const UploadForm: React.FC = () => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [questions, setQuestions] = useState<string[]>([]);
 
-    const UPLOAD_URL = 'http://localhost:5000/api/extract-questions';
+    const UPLOAD_URL = 'http://localhost:8000/api/extract-questions';
 
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
