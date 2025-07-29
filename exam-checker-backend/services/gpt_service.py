@@ -80,3 +80,35 @@ def extract_questions(text: str) -> list[str]:
     except Exception as e:
         print(f"An unexpected error occurred during extraction: {e}")
         return [f"An unexpected error occurred during extraction: {e}"]
+
+
+def evaluate_exam(text: str, student_name: str = "לא צוין") -> dict:
+    print(f"Text length received by evaluate_exam: {len(text)} characters")
+    try:
+        current_dir = os.path.dirname(__file__)  # הנתיב של gpt_service.py
+        prompt_path = os.path.join(current_dir, "..", "prompts", "exam_prompt.txt")
+        # קריאה מהקובץ
+        with open(prompt_path, "r", encoding="utf-8") as f:
+            template = f.read()
+
+        # הכנסת הנתונים הרלוונטיים
+        prompt = template.format(student_name=student_name, text=text)
+        print("הפרומפט שנשלח ל-GPT:\n", prompt)
+
+        response = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "אתה עוזר בודק מבחנים באנגלית. הפלט חייב להיות JSON תקני בלבד."},
+                {"role": "user", "content": prompt}
+            ],
+            max_tokens=1000,
+            temperature=0.3
+        )
+
+        import json
+        print(f"Response from GPT: {response.choices[0].message.content}")  # הדפסת התגובה לצורך ניפוי שגיאות
+        return json.loads(response.choices[0].message.content)
+
+    except Exception as e:
+        print(f"שגיאה בעת שליחת הבקשה ל-GPT: {e}")
+        return {"error": str(e)}
