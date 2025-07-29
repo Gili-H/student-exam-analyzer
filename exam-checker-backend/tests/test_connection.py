@@ -1,13 +1,8 @@
-from sqlalchemy import text
-from database import engine
+import httpx
 
-def test_database_connection():
-    try:
-        with engine.connect() as connection:
-            result = connection.execute(text("SELECT 1"))
-            print("✅ Connected to database! Result:", result.scalar())
-    except Exception as e:
-        print("❌ Failed to connect to database:", e)
-
-if __name__ == "__main__":
-    test_database_connection()
+try:
+    # עקיפת אימות תעודה
+    response = httpx.get("https://api.openai.com/v1/models", timeout=10, verify=False)
+    print("Success! Got response:", response.status_code)
+except httpx.RequestError as e:
+    print("Connection error:", e)

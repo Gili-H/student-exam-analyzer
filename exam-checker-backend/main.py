@@ -4,14 +4,21 @@ from api.endpoints import router
 
 app = FastAPI()
 
-# הגדרת CORS - חשוב מאוד לפיתוח
+allowed_origins = [
+    "http://localhost",
+    "http://localhost:3000",  # Common for Create React App
+    "http://localhost:5173",  # This is the origin your React app is actually using
+    "http://127.0.0.1:5173",  # Sometimes 127.0.0.1 is used instead of localhost
+    # Add any other specific origins where your client might be hosted in development
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # מאפשר הכל לצורך פיתוח. בהפקה, הגבילי!
+    # Set the specific allowed origins
+    allow_origins=allowed_origins,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["*"], # Allows all HTTP methods (GET, POST, PUT, DELETE, etc.)
+    allow_headers=["*"], # Allows all headers from the client
 )
-
 # חיבור ה־router שמוגדר ב־api/endpoints.py
 app.include_router(router, prefix="/api")
