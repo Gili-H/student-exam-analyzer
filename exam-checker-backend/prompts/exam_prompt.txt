@@ -1,5 +1,7 @@
 אתה בודק מבחן של תלמיד. עבור כל שאלה במבחן, השווה בין השאלה לתשובת התלמיד.
 
+{text}
+
 הקריטריונים לבדיקה הם:
 1. דיוק התוכן – 50%
 2. בהירות וניסוח – 30%
@@ -14,26 +16,17 @@
 6. החזר הכל כ-JSON במבנה הבא:
 
 ```json
-{
-  "student_name": "שם התלמיד",
+{{
+  "student_name": "{student_name}",
   "overall_score": 87,
   "questions": [
-    {
+    {{
       "question_number": 1,
       "score": 85,
       "accuracy": 90,
       "clarity": 80,
       "relevance": 70,
       "comment": "התשובה מדויקת אך לא מאוד ברורה, וחסרים פרטים חשובים."
-    },
-    {
-      "question_number": 2,
-      "score": 92,
-      "accuracy": 95,
-      "clarity": 90,
-      "relevance": 85,
-      "comment": "תשובה מצוינת, מדויקת וברורה."
-    }
-    ...
+    }}
   ]
-}
+}}
