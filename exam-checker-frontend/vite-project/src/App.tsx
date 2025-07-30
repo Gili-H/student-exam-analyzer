@@ -1,5 +1,5 @@
 import TestTypesPage from './pages/TestTypesPage';
-import { Container, Typography, CssBaseline, Box } from '@mui/material';
+import { Container, CssBaseline, Box } from '@mui/material';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { CacheProvider } from '@emotion/react';
 import createCache from '@emotion/cache';

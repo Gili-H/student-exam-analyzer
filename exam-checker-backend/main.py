@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from api.endpoints import router
+from api import exam_model_routes
 
 app = FastAPI()
 
@@ -22,3 +23,5 @@ app.add_middleware(
 )
 # חיבור ה־router שמוגדר ב־api/endpoints.py
 app.include_router(router, prefix="/api")
+app.include_router(exam_model_routes.router)
+
