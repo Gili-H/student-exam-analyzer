@@ -5,6 +5,7 @@ import { CacheProvider } from '@emotion/react';
 import createCache from '@emotion/cache';
 import rtlPlugin from 'stylis-plugin-rtl';
 import { prefixer } from 'stylis';
+import ExamCheckPage from './pages/ExamCheckPage';
 
 // יצירת cache שתומך ב־RTL
 const cacheRtl = createCache({
@@ -36,11 +37,8 @@ function App() {
             textAlign: 'center',
           }}
         >
-          <Container maxWidth="sm">
-            <Typography variant="h3" gutterBottom>
-              ניהול מבחנים
-            </Typography>
-            <TestTypesPage />
+          <Container maxWidth="lg">
+            <ExamCheckPage />
           </Container>
         </Box>
       </ThemeProvider>
