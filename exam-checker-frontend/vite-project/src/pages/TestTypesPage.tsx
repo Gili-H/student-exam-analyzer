@@ -1,132 +1,168 @@
-// src/components/TestTypesPage.tsx
 import { useState } from 'react';
 import {
-    Button,
-    Typography,
-    Box,
-    Paper,
-    Card, // ייבוא Card
-    CardContent, // ייבוא CardContent
+  Box,
+  Typography,
+  Paper,
+  Button,
+  Card,
+  CardContent,
 } from '@mui/material';
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import AssignmentIcon from '@mui/icons-material/Assignment';
+import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
+
 import AddTestModal from '../components/TestModels/AddTestModal';
-import type { Test, ParameterItem } from '../types'; // ייבוא ממשק Test
+import type { Test, ParameterItem } from '../types';
 import { ALL_PARAMETERS } from '../types';
+import { red } from '@mui/material/colors';
 
 function TestTypesPage() {
-    const [openModal, setOpenModal] = useState<boolean>(false);
-    const [tests, setTests] = useState<Test[]>([]); // הגדרת הסוג של המערך
+  const [openModal, setOpenModal] = useState<boolean>(false);
+  const [tests, setTests] = useState<Test[]>([]);
 
-    const handleOpenModal = () => setOpenModal(true);
-    const handleCloseModal = () => setOpenModal(false);
+  const handleOpenModal = () => setOpenModal(true);
+  const handleCloseModal = () => setOpenModal(false);
 
-    const handleAddTest = (newTest: Test) => {
-        setTests((prevTests) => [...prevTests, newTest]);
-        handleCloseModal();
-    };
+  const handleAddTest = (newTest: Test) => {
+    setTests((prevTests) => [...prevTests, newTest]);
+    handleCloseModal();
+  };
 
-    // פונקציה עזר להמרת רמת קפדנות לטקסט קריא
-    const getRigorLevelText = (level: Test['rigorLevel']): string => {
-        switch (level) {
-            case 'high':
-                return 'גבוהה (מדויקת מאוד)';
-            case 'medium':
-                return 'בינונית (מאוזנת)';
-            case 'low':
-                return 'נמוכה (סלחנית)';
-            default:
-                return 'לא צוין';
-        }
-    };
+  const getRigorLevelText = (level: Test['rigorLevel']): string => {
+    switch (level) {
+      case 'high':
+        return 'גבוהה (מדויקת מאוד)';
+      case 'medium':
+        return 'בינונית (מאוזנת)';
+      case 'low':
+        return 'נמוכה (סלחנית)';
+      default:
+        return 'לא צוין';
+    }
+  };
 
-    const getParameterShortLabel = (id: string): string => {
-        for (const category in ALL_PARAMETERS) { // השתמש ב-ALL_PARAMETERS
-            // הטיפוס של category הוא string, אבל TypeScript יודע ש-ALL_PARAMETERS
-            // הוא מסוג ParametersByCategory ולכן הגישה בטוחה יותר.
-            const categoryItems: ParameterItem[] = ALL_PARAMETERS[category]; // הגדר במפורש את הטיפוס
-            const found = categoryItems.find((p) => p.id === id);
-            if (found) return found.label.split(' – ')[0];
-        }
-        return id;
-    };
+  const getParameterShortLabel = (id: string): string => {
+    for (const category in ALL_PARAMETERS) {
+      const categoryItems: ParameterItem[] = ALL_PARAMETERS[category];
+      const found = categoryItems.find((p) => p.id === id);
+      if (found) return found.label.split(' – ')[0];
+    }
+    return id;
+  };
 
-    return (
-        <Box sx={{ mt: 4 }} dir="rtl">
-            <Box
-                sx={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    textAlign: 'center',
-                    gap: 2,
-                    mb: 3,
-                }}
-            >
-                <Button variant="contained" onClick={handleOpenModal}>
-                    הוסף מבחן
-                </Button>
-                <Typography variant="h4" component="h2">
-                    מודלי המבחנים שלי               
-                </Typography>
-            </Box>
+  return (
+    <Box sx={{
+      display: 'flex',
+      flexDirection: 'column', 
+      gap: 5, mt: 2, p: 2
+    }} dir="rtl">
+      <Typography sx={{ fontSize: 70 }} variant="h4" align="center" gutterBottom fontWeight="bold">
+        הגדרות בדיקה
+      </Typography>
 
-            <Paper elevation={3} sx={{ p: 3 }}>
-                {tests.length === 0 ? (
-                    <Typography variant="body1" color="text.secondary">
-                        עדיין אין מודלי מבחנים. לחץ על "הוסף מבחן" כדי ליצור אחד.
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: { xs: 'column', md: 'row' },
+          gap: 4,
+          mt: 4,
+          justifyContent: 'center',
+        }}
+      >
+        {/* יצירת מבחן חדש */}
+        <Paper
+          elevation={4}
+          sx={{
+            flex: 1,
+            p: { xs: 4, md: 6 },
+            borderRadius: 4,
+            bgcolor: '#e3f2fd',
+            textAlign: 'center',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            minHeight: 350,
+            maxWidth: { xs: '100%', md: 700 },
+            width: '100%',
+            mx: 'auto',
+          }}
+        >
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 2, mt: 2 }}>
+            {/* Icon */}
+            <AddCircleOutlineIcon sx={{ fontSize: 40, color: '#1976d2', mb: 1 }} />
+            {/* or <LibraryBooksIcon ... /> for the other box */}
+            {/* Title */}
+            <Typography variant="h6" gutterBottom>
+              יצירת מבחן חדש
+            </Typography>
+          </Box>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleOpenModal}
+            sx={{ mt: 3 }}
+            startIcon={<AssignmentIcon />}
+          >
+            הוסף מבחן
+          </Button>
+        </Paper>
+
+        {/* מודלי מבחנים קיימים */}
+        <Paper
+          elevation={4}
+          sx={{
+            flex: 1,
+            p: { xs: 4, md: 6 },
+            borderRadius: 4,
+            bgcolor: '#f1f8e9',
+            textAlign: 'center',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            minHeight: 350,
+            maxWidth: { xs: '100%', md: 700 },
+            width: '100%',
+            mx: 'auto',
+          }}
+        >
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 2, mt: 2 }}>
+            <LibraryBooksIcon sx={{ fontSize: 40, color: '#558b2f', mb: 1 }} />
+            <Typography variant="h6" gutterBottom>
+              מודלי המבחנים הקיימים:
+            </Typography>
+          </Box>
+
+          {tests.length === 0 ? (
+            <Typography variant="body2" color="text.secondary">
+              עדיין אין מודלי מבחנים. לחץ על "הוסף מבחן" כדי ליצור אחד.
+            </Typography>
+          ) : (
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              {tests.map((test, index) => (
+                <Card key={index} variant="outlined" sx={{ bgcolor: '#ffffff' }}>
+                  <CardContent>
+                    <Typography variant="subtitle1" fontWeight="bold">
+                      {test.testName}
                     </Typography>
-                ) : (
-                    <Box
-                        sx={{
-                            display: 'grid',
-                            gridTemplateColumns: {
-                                xs: '1fr',
-                                sm: 'repeat(auto-fill, minmax(280px, 1fr))',
-                                md: 'repeat(auto-fill, minmax(320px, 1fr))',
-                            },
-                            gap: 3,
-                        }}
-                    >
-                        {tests.map((test, index) => (
-                            <Card key={index} elevation={2} sx={{ minWidth: 275 }}>
-                                <CardContent>
-                                    <Typography variant="h6" component="div" gutterBottom>
-                                        {test.testName}
-                                    </Typography>
-                                    <Typography variant="body2" color="text.secondary">
-                                        **כיתה:** {test.grade}
-                                    </Typography>
-                                    <Typography variant="body2" color="text.secondary">
-                                        **מקצוע:** {test.subject}
-                                    </Typography>
-                                    <Typography variant="body2" color="text.secondary">
-                                        **מספר עבודות:** {test.numAssignments}
-                                    </Typography>
-                                    {test.rigorLevel && (
-                                        <Typography variant="body2" color="text.secondary">
-                                            **רמת קפדנות:** {getRigorLevelText(test.rigorLevel)}
-                                        </Typography>
-                                    )}
-                                    {test.selectedParameters.length > 0 && (
-                                        <Box sx={{ mt: 1 }}>
-                                            <Typography variant="body2" color="text.secondary" component="span">
-                                                **פרמטרים נבחרים:**{' '}
-                                            </Typography>
-                                            <Typography variant="body2" component="span">
-                                                {test.selectedParameters.map(getParameterShortLabel).join(', ')}{' '}
-                                                ({test.selectedParameters.length})
-                                            </Typography>
-                                        </Box>
-                                    )}
-                                </CardContent>
-                            </Card>
-                        ))}
-                    </Box>
-                )}
-            </Paper>
+                    <Typography variant="body2">כיתה {test.grade} - {test.subject}</Typography>
+                  </CardContent>
+                </Card>
+              ))}
+            </Box>
+          )}
+        </Paper>
+      </Box>
 
-            <AddTestModal open={openModal} handleClose={handleCloseModal} onAddTest={handleAddTest} />
-        </Box>
-    );
+      {/* מודאל */}
+      <AddTestModal
+        open={openModal}
+        onClose={handleCloseModal}
+        onAddTest={handleAddTest}
+      />
+    </Box>
+  );
 }
 
 export default TestTypesPage;
