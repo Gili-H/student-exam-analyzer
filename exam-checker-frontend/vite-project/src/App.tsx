@@ -1,5 +1,5 @@
 import TestTypesPage from './pages/TestTypesPage';
-import { Container, Typography, CssBaseline, Box } from '@mui/material';
+import { Container, CssBaseline, Box } from '@mui/material';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { CacheProvider } from '@emotion/react';
 import createCache from '@emotion/cache';
@@ -36,10 +36,7 @@ function App() {
             textAlign: 'center',
           }}
         >
-          <Container maxWidth="sm">
-            <Typography variant="h3" gutterBottom>
-              ניהול מבחנים
-            </Typography>
+          <Container maxWidth="lg">
             <TestTypesPage />
           </Container>
         </Box>
