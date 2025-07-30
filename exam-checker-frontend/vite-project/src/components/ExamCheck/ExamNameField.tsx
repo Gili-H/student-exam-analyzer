@@ -1,5 +1,7 @@
+import React from "react";
 import { TextField } from "@mui/material";
-export default function ExamNameField() {
+
+const ExamNameField: React.FC = () => {
   return (
     <TextField
       label="שם בדיקה"
@@ -9,4 +11,6 @@ export default function ExamNameField() {
       InputProps={{ style: { textAlign: "right" } }}
     />
   );
-}
+};
+
+export default ExamNameField;
