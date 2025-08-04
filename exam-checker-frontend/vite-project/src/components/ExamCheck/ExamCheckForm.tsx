@@ -7,9 +7,8 @@ import ExamActions from "./ExamActions";
 
 interface ExamCheckFormProps {
   onFileChange: (file: File | null) => void;
-  selectedFile: File | null; // ← הוספנו שדה זה
+  selectedFile: File | null;
 }
-
 
 const ExamCheckForm: React.FC<ExamCheckFormProps> = ({ onFileChange, selectedFile }) => {
   const [isLoading] = React.useState(false);

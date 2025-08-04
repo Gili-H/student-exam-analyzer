@@ -25,7 +25,7 @@ const ExamPreview: React.FC<ExamPreviewProps> = ({ file }) => {
       sx={{
         border: "1px solid #222",
         width: "60vw",
-        height: "80vh",        
+        height: "80vh",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",

@@ -6,7 +6,7 @@ import ExamPreview from "../components/ExamCheck/ExamPreview";
 
 const ExamCheckPage: React.FC = () => {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
-
+    
     return (
         <Box sx={{ p: 4 }}>
             <ExamCheckTitle />
@@ -22,3 +22,4 @@ const ExamCheckPage: React.FC = () => {
 };
 
 export default ExamCheckPage;
+
