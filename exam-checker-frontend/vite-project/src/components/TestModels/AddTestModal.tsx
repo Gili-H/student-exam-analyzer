@@ -5,6 +5,8 @@ import AssignmentFields from './AssignmentFields';
 import RigorLevelSelector from './RigorLevelSelector';
 import CustomValidationSection from './CostomValidationSection';
 import SubmitButton from './SubmitButton';
+import { createTestModel } from "../../api/testsApi";
+
 
 // You may need to adjust these types to match your actual types
 import type { ParametersByCategory } from '../../types';
@@ -45,20 +47,7 @@ const AddTestModal: React.FC<AddTestModalProps> = ({
   const [validateSum, setValidateSum] = useState(false);
   const [sumError] = useState(false);
 
-  // Collect and submit all form data
-  const handleSubmit = () => {
-    const testData = {
-      testName,
-      grade,
-      subject,
-      numAssignments,
-      assignmentScores,
-      rigorLevel,
-      customizeValidation,
-      selectedParameters,
-    };
-    if (onAddTest) onAddTest(testData);
-    onClose();
+  const resetForm = () => {
     setTestName('');
     setGrade('');
     setSubject('');
@@ -68,6 +57,35 @@ const AddTestModal: React.FC<AddTestModalProps> = ({
     setCustomizeValidation(false);
     setSelectedParameters([]);
   };
+
+  // Collect and submit all form data
+
+  const handleSubmit = async () => {
+    const testData = {
+      name: testName,
+      grade,
+      subject,
+      structure: {
+        numAssignments,
+        assignmentScores,
+        rigorLevel,
+        customizeValidation,
+        selectedParameters
+      }
+    };
+    try {
+      const savedTest = await createTestModel(testData);
+      console.log("נשמר בהצלחה ב־DB:", savedTest);
+
+      if (onAddTest) onAddTest(savedTest);
+      onClose();
+      resetForm();
+    } catch (error) {
+      console.error("שגיאה:", error);
+      alert("אירעה שגיאה בשמירת המבחן");
+    }
+  };
+
 
   return (
     <Modal open={open} onClose={onClose}>
