@@ -5,7 +5,7 @@ class ExamModelCreate(BaseModel):
     name: str
     grade: Optional[str]
     subject: Optional[str]
-    structure: Dict[str, Any]
+    structure: Dict[str, Any] = None
 
 class ExamModelResponse(ExamModelCreate):
     id: int
