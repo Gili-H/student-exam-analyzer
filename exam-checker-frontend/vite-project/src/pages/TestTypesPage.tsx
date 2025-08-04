@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Box,
   Typography,
@@ -12,50 +12,37 @@ import AssignmentIcon from '@mui/icons-material/Assignment';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 
 import AddTestModal from '../components/TestModels/AddTestModal';
-import type { Test, ParameterItem } from '../types';
-import { ALL_PARAMETERS } from '../types';
-import { red } from '@mui/material/colors';
+import { getTestModels } from '../api/testsApi';
 
 function TestTypesPage() {
-  const [openModal, setOpenModal] = useState<boolean>(false);
-  const [tests, setTests] = useState<Test[]>([]);
+  const [openModal, setOpenModal] = useState(false);
+  const [tests, setTests] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const handleOpenModal = () => setOpenModal(true);
   const handleCloseModal = () => setOpenModal(false);
 
-  const handleAddTest = (newTest: Test) => {
-    setTests((prevTests) => [...prevTests, newTest]);
-    handleCloseModal();
-  };
-
-  const getRigorLevelText = (level: Test['rigorLevel']): string => {
-    switch (level) {
-      case 'high':
-        return 'גבוהה (מדויקת מאוד)';
-      case 'medium':
-        return 'בינונית (מאוזנת)';
-      case 'low':
-        return 'נמוכה (סלחנית)';
-      default:
-        return 'לא צוין';
+  const fetchTests = async () => {
+    try {
+      const data = await getTestModels();
+      setTests(data);
+    } catch (error) {
+      console.error('שגיאה בטעינת מודלים:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const getParameterShortLabel = (id: string): string => {
-    for (const category in ALL_PARAMETERS) {
-      const categoryItems: ParameterItem[] = ALL_PARAMETERS[category];
-      const found = categoryItems.find((p) => p.id === id);
-      if (found) return found.label.split(' – ')[0];
-    }
-    return id;
+  const handleAddTest = async () => {
+    await fetchTests(); // ריענון הרשימה אחרי שמירה
   };
+
+  useEffect(() => {
+    fetchTests();
+  }, []);
 
   return (
-    <Box sx={{
-      display: 'flex',
-      flexDirection: 'column', 
-      gap: 5, mt: 2, p: 2
-    }} dir="rtl">
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 5, mt: 2, p: 2 }} dir="rtl">
       <Typography sx={{ fontSize: 70 }} variant="h4" align="center" gutterBottom fontWeight="bold">
         הגדרות בדיקה
       </Typography>
@@ -89,10 +76,7 @@ function TestTypesPage() {
           }}
         >
           <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 2, mt: 2 }}>
-            {/* Icon */}
             <AddCircleOutlineIcon sx={{ fontSize: 40, color: '#1976d2', mb: 1 }} />
-            {/* or <LibraryBooksIcon ... /> for the other box */}
-            {/* Title */}
             <Typography variant="h6" gutterBottom>
               יצירת מבחן חדש
             </Typography>
@@ -134,17 +118,19 @@ function TestTypesPage() {
             </Typography>
           </Box>
 
-          {tests.length === 0 ? (
+          {loading ? (
+            <Typography variant="body2" color="text.secondary">טוען...</Typography>
+          ) : tests.length === 0 ? (
             <Typography variant="body2" color="text.secondary">
               עדיין אין מודלי מבחנים. לחץ על "הוסף מבחן" כדי ליצור אחד.
             </Typography>
           ) : (
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-              {tests.map((test, index) => (
-                <Card key={index} variant="outlined" sx={{ bgcolor: '#ffffff' }}>
+              {tests.map((test) => (
+                <Card key={test.id} variant="outlined" sx={{ bgcolor: '#ffffff' }}>
                   <CardContent>
                     <Typography variant="subtitle1" fontWeight="bold">
-                      {test.testName}
+                      {test.name}
                     </Typography>
                     <Typography variant="body2">כיתה {test.grade} - {test.subject}</Typography>
                   </CardContent>

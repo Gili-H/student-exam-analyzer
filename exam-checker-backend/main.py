@@ -2,6 +2,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from api.endpoints import router
 from api import exam_model_routes
+from db.database import Base, engine
+from db import models  # חשוב כדי ש-SQLAlchemy יטען את המודלים
 
 app = FastAPI()
 
@@ -25,3 +27,6 @@ app.add_middleware(
 app.include_router(router, prefix="/api")
 app.include_router(exam_model_routes.router)
 
+
+
+Base.metadata.create_all(bind=engine)
