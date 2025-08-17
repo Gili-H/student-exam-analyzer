@@ -1,6 +1,7 @@
 // src/api/testsApi.ts
 
 export interface TestData {
+  id?: string; // הוסף את השדה הזה
   name: string;
   grade?: string;
   subject?: string;
