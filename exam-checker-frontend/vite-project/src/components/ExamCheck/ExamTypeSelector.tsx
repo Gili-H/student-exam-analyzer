@@ -10,7 +10,6 @@ import {
 const ExamTypeSelector: React.FC = () => {
   return (
     <FormControl component="fieldset" sx={{ mb: 2 }}>
-      <FormLabel component="legend">בחר מבחן</FormLabel>
       <RadioGroup row>
         <FormControlLabel
           value="single"
