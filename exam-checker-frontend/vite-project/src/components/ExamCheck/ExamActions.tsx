@@ -1,15 +1,19 @@
 // src/components/ExamActions.tsx
-import React, { useState } from "react";
+import React from "react";
 import { Button, Stack, Menu, MenuItem } from "@mui/material";
 import { getTestModels } from "../../api/testsApi";
 import type { TestData } from "../../api/testsApi";
 
-const ExamActions: React.FC = () => {
-  const [selectedModel, setSelectedModel] = useState<TestData | null>(null);
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [models, setModels] = useState<TestData[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
+interface ExamActionsProps {
+  selectedModel: TestData | null;
+  onModelSelect: (model: TestData) => void;
+}
+
+const ExamActions: React.FC<ExamActionsProps> = ({ selectedModel, onModelSelect }) => {
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const [models, setModels] = React.useState<TestData[]>([]);
+  const [loading, setLoading] = React.useState<boolean>(false);
+  const [error, setError] = React.useState<string | null>(null);
 
   const isMenuOpen = Boolean(anchorEl);
 
@@ -33,14 +37,13 @@ const ExamActions: React.FC = () => {
   };
 
   const handleModelSelect = (model: TestData) => {
-    setSelectedModel(model);
+    onModelSelect(model); // קריאה לפונקציית ה-prop מהאב
     handleMenuClose();
     console.log("נבחר מודל:", model.name, "עם ID:", model.id);
   };
 
   return (
     <Stack spacing={2}>
-      {/* כפתור לפתיחת התפריט */}
       <Button
         variant="outlined"
         fullWidth
@@ -52,7 +55,6 @@ const ExamActions: React.FC = () => {
         {selectedModel ? selectedModel.name : "בחר מודל בדיקה"}
       </Button>
 
-      {/* תפריט המודלים */}
       <Menu
         id="models-menu"
         anchorEl={anchorEl}
@@ -61,7 +63,6 @@ const ExamActions: React.FC = () => {
         MenuListProps={{
           'aria-labelledby': 'basic-button',
         }}
-        // הגדרת רוחב התפריט כרוחב הכפתור
         PaperProps={{
           style: {
             width: anchorEl ? anchorEl.clientWidth : undefined,
@@ -80,14 +81,6 @@ const ExamActions: React.FC = () => {
           ))
         )}
       </Menu>
-
-      <Button
-        variant="contained"
-        fullWidth
-        disabled={!selectedModel}
-      >
-        שלח לבדיקה
-      </Button>
     </Stack>
   );
 };
