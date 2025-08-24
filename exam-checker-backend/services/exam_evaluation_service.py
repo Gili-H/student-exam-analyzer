@@ -5,8 +5,8 @@ from services import exam_model_service
 from core.schemas import ExamModelResponse
 from fastapi import UploadFile  # יש להוסיף את ספריית FastAPI
 from services.ocr_service import extract_text # יש להוסיף את הקובץ שמכיל את פונקציות חילוץ הטקסט
-from services.question_splitter import split_questions_and_answers
-from services.parse_grade import parse_hebrew_grade
+from services.question_splitter_service import split_questions_and_answers
+from services.parse_grade_service import parse_hebrew_grade
 
 async def process_exam_for_evaluation(
     db: Session, 
