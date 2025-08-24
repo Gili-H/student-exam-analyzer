@@ -9,21 +9,25 @@ pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tessera
 poppler_path = r'C:\Program Files\poppler-24.08.0\Library\bin'  # עדכן בהתאם למחשב שלך
 import tempfile
 
-async def extract_text(file) -> str:
+async def extract_text(file_content: bytes, filename: str) -> str:
     """Detect file type and extract text accordingly."""
-    filename = file.filename.lower()
+    filename = filename.lower()
 
-    # שמירת הקובץ לקובץ זמני
+    # שמירת התוכן שקיבלנו לקובץ זמני
     with tempfile.NamedTemporaryFile(delete=False, suffix=filename[-4:]) as tmp:
-        tmp.write(await file.read())
+        tmp.write(file_content)
         tmp_path = tmp.name
 
-    if filename.endswith('.pdf'):
-        return extract_text_from_pdf(tmp_path)
-    elif filename.endswith(('.png', '.jpg', '.jpeg')):
-        return extract_text_from_image(tmp_path)
-    else:
-        raise ValueError("Unsupported file type")
+    try:
+        if filename.endswith('.pdf'):
+            return extract_text_from_pdf(tmp_path)
+        elif filename.endswith(('.png', '.jpg', '.jpeg')):
+            return extract_text_from_image(tmp_path)
+        else:
+            raise ValueError("Unsupported file type")
+    finally:
+        # ודא שהקובץ הזמני נמחק לאחר השימוש
+        os.remove(tmp_path)
 
 
 def extract_text_from_image(image_path: str) -> str:
