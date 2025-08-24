@@ -2,6 +2,8 @@ from dotenv import load_dotenv
 import os
 import openai
 from httpx import Client, Timeout, Limits # ייבוא נוסף: Client, Timeout, Limits מ-httpx
+from services.prompt_builder_service import build_exam_prompt  # <--- הוספנו ייבוא
+import json
 
 load_dotenv()
 
@@ -21,94 +23,43 @@ except Exception as e:
     raise ValueError(f"Failed to initialize OpenAI client. Error: {e}")
 # --- סוף שינוי ---
 
-
-def evaluate_answer(question: str, answer: str, criteria: list[str]) -> str:
-    prompt = (
-        f"Evaluate the following answer based on these criteria: {', '.join(criteria)}.\n\n"
-        f"Question: {question}\n"
-        f"Student Answer: {answer}\n\n"
-        "Provide a score (out of 100) and detailed feedback for each criterion. "
-        "Also, suggest corrections where necessary. Format the output clearly."
+def evaluate_exam_with_prompt(
+    questions_with_scores,
+    selected_parameters,
+    rigor_text,
+    grade
+) -> dict:
+    """
+    Build the exam prompt (via prompt_builder_service) and send it to GPT.
+    """
+    # בניית הפרומפט
+    prompt = build_exam_prompt(
+        questions_with_scores=questions_with_scores,
+        selected_parameters=selected_parameters,
+        rigor_text=rigor_text,
+        grade=grade
     )
 
-    try: # הוספת בלוק try-except לטיפול בשגיאות
+    print("--- Final Prompt ---")
+    print(prompt)
+
+    try:
         response = client.chat.completions.create(
-            model="gpt-4", # השארתי gpt-4 כפי שהיה בקוד המקורי שלך. אם תרצה gpt-4o-mini, שנה כאן
+            model="gpt-4o-mini",  # אפשר לשנות למודל אחר
             messages=[
-                {"role": "system", "content": "You are an AI assistant that evaluates student answers to English exams. Provide concise and helpful feedback."},
+                {"role": "system", "content": "אתה בודק מבחנים באנגלית. הפלט חייב להיות JSON חוקי בעברית."},
                 {"role": "user", "content": prompt}
             ],
-            max_tokens=200,
-            temperature=0.7
-        )
-        return response.choices[0].message.content
-    except openai.APIStatusError as e:
-        print(f"Error calling OpenAI API (Status {e.status_code}): {e.response}")
-        return f"An API error occurred during evaluation: Status {e.status_code}, Response: {e.response}"
-    except openai.APIConnectionError as e:
-        print(f"OpenAI API connection error: {e}")
-        return f"An API connection error occurred during evaluation: {e}"
-    except Exception as e:
-        print(f"An unexpected error occurred: {e}")
-        return f"An unexpected error occurred during evaluation: {e}"
-
-
-def extract_questions(text: str) -> list[str]:
-    prompt = (
-        "The following text contains an exam. Extract all the questions/instructions only, "
-        "one per line, exactly as they appear:\n\n"
-        f"{text}"
-    )
-
-    try: # הוספת בלוק try-except גם כאן
-        response = client.chat.completions.create(
-            model="gpt-4", # השארתי gpt-4 כפי שהיה בקוד המקורי שלך
-            messages=[
-                {"role": "system", "content": "You extract exam questions from text."},
-                {"role": "user", "content": prompt}
-            ],
-            max_tokens=200,
+            max_tokens=1500,
             temperature=0
         )
-        return response.choices[0].message.content.strip().splitlines()
-    except openai.APIStatusError as e:
-        print(f"Error calling OpenAI API (Status {e.status_code}): {e.response}")
-        return [f"An API error occurred during extraction: Status {e.status_code}, Response: {e.response}"]
-    except openai.APIConnectionError as e:
-        print(f"OpenAI API connection error during extraction: {e}")
-        return [f"An API connection error occurred during extraction: {e}"]
-    except Exception as e:
-        print(f"An unexpected error occurred during extraction: {e}")
-        return [f"An unexpected error occurred during extraction: {e}"]
 
+        content = response.choices[0].message.content
+        print("GPT Response:", content)
 
-def evaluate_exam(text: str, student_name: str = "לא צוין") -> dict:
-    print(f"Text length received by evaluate_exam: {len(text)} characters")
-    try:
-        current_dir = os.path.dirname(__file__)  # הנתיב של gpt_service.py
-        prompt_path = os.path.join(current_dir, "..", "prompts", "exam_prompt.txt")
-        # קריאה מהקובץ
-        with open(prompt_path, "r", encoding="utf-8") as f:
-            template = f.read()
-
-        # הכנסת הנתונים הרלוונטיים
-        prompt = template.format(student_name=student_name, text=text)
-        print("הפרומפט שנשלח ל-GPT:\n", prompt)
-
-        response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": "אתה עוזר בודק מבחנים באנגלית. הפלט חייב להיות JSON תקני בלבד."},
-                {"role": "user", "content": prompt}
-            ],
-            max_tokens=1000,
-            temperature=0.3
-        )
-
-        import json
-        print(f"Response from GPT: {response.choices[0].message.content}")  # הדפסת התגובה לצורך ניפוי שגיאות
-        return json.loads(response.choices[0].message.content)
+        return json.loads(content)
 
     except Exception as e:
         print(f"שגיאה בעת שליחת הבקשה ל-GPT: {e}")
         return {"error": str(e)}
+
